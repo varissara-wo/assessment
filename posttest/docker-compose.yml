@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+#   assessment:
+#     build:
+#       context: .
+#     ports:
+#       - "8081:8081"
+#     depends_on:
+#       - postgres
+#     restart: always
+   postgres:
+    image: postgres:latest  
+    environment:
+      POSTGRES_DB: assessment
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    restart: always
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
