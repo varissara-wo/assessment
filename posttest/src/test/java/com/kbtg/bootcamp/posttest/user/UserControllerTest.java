@@ -16,8 +16,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -41,8 +40,9 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("When performing the GET request on /users/2/lotteries, it should return the list of all tickets, cost, and count")
+    @DisplayName("When performing the GET request on /users/1234567890/lotteries, it should return the list of all tickets, cost, and count")
     void getUserLotteries() throws Exception {
+        Long userId = 1234567890L;;
         List<String> tickets = Arrays.asList("123456", "456544", "789546");
         int count = tickets.size();
         int cost = 100;
@@ -51,7 +51,7 @@ class UserControllerTest {
         when(userService.getUserTickets(any(Integer.class))).thenReturn(responseEntity);
 
 
-        mockMvc.perform(get("/users/2/lotteries", 123))
+        mockMvc.perform(get("/users/{userId}/lotteries", userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.tickets", hasSize(3)))
                 .andExpect(jsonPath("$.count").value(3))
@@ -59,14 +59,14 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("When performing the POST request on /users/2/lotteries/2, it should return the buy ticket id from the userTicket table")
+    @DisplayName("When performing the POST request on /users/1234567890/lotteries/2, it should return the buy ticket id from the userTicket table")
     void buyLotteries() throws Exception {
-        int userId = 2;
+        Long userId = 1234567890L;;
         int ticketId = 2;
         int responseId = 5;
         BuyLotteryResponseDto responseDto = new BuyLotteryResponseDto(responseId);
         ResponseEntity<BuyLotteryResponseDto> responseEntity = new ResponseEntity<>(responseDto, HttpStatus.CREATED);
-        when(userService.buyLotteryTicket(eq(userId), eq(ticketId))).thenReturn(responseEntity);
+        when(userService.buyLotteryTicket(Math.toIntExact(userId), ticketId)).thenReturn(responseEntity);
 
         mockMvc.perform(post("/users/{userId}/lotteries/{ticketId}", userId, ticketId))
                 .andExpect(status().isCreated())
@@ -74,14 +74,14 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("When performing the DELETE request on /users/2/lotteries/2, it should return delete ticket number")
+    @DisplayName("When performing the DELETE request on /users/1234567890/lotteries/2, it should return delete ticket number")
     void deleteLotteries() throws Exception {
-        int userId = 2;
+        Long userId = 1234567890L;
         int ticketId = 2;
         String responseTicket = "789456";
         DeleteLotteryResponseDto responseDto = new DeleteLotteryResponseDto(responseTicket);
         ResponseEntity<DeleteLotteryResponseDto> responseEntity = new ResponseEntity<>(responseDto, HttpStatus.OK);
-        when(userService.deleteLotteryTicket(eq(userId), eq(ticketId))).thenReturn(responseEntity);
+        when(userService.deleteLotteryTicket(Math.toIntExact(userId), ticketId)).thenReturn(responseEntity);
 
         mockMvc.perform(delete("/users/{userId}/lotteries/{ticketId}", userId, ticketId))
                 .andExpect(status().isOk())
